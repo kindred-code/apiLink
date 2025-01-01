@@ -3,8 +3,9 @@ package connections
 import (
 	"database/sql"
 	"fmt"
-	us "mpolitakis.LinkApi/User"
 	"os"
+
+	us "mpolitakis.LinkApi/User"
 )
 
 func Connections() *sql.DB {

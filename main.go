@@ -3,10 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	_ "github.com/lib/pq"
 	"net/http"
 	"os"
+
+	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq"
 
 	db "mpolitakis.LinkApi/Connections"
 	us "mpolitakis.LinkApi/User"
@@ -45,7 +46,6 @@ func GetUser(c *gin.Context) {
 
 	c.IndentedJSON(http.StatusCreated, users)
 	defer conn.Close()
-	return
 
 }
 
@@ -67,6 +67,5 @@ func PostUser(c *gin.Context) {
 
 	c.IndentedJSON(http.StatusCreated, u)
 	defer conn.Close()
-	return
 
 }
