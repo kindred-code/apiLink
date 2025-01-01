@@ -1,18 +1,14 @@
 package connections
 
-
-
-import(
-	"os"
+import (
 	"database/sql"
 	"fmt"
-	us "gitlab.com/mpolitakis/linkapi/User"
+	us "mpolitakis.LinkApi/User"
+	"os"
 )
 
-
-func Connections() (*sql.DB){
+func Connections() *sql.DB {
 	connStr := "user=postgres dbname=postgres password=Agile5-Oxford2-Snooze2-Populate8-Suitably3-Limb4-Occultist1-Throwback4-Crabbing4-Clamshell0 sslmode=disable"
-
 
 	conn, err := sql.Open("postgres", connStr)
 	if err != nil {
@@ -22,8 +18,6 @@ func Connections() (*sql.DB){
 
 	return conn
 }
-
-
 
 func BuildSql(u *us.User) string {
 	return fmt.Sprintf("insert into users (username, password, email)values  ('%s', '%s', '%s')", u.Username, u.Password, u.Email)
