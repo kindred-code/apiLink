@@ -1,7 +1,7 @@
-package user
+package profile
 
-type User struct {
-	ID       int    `json:"id"`
+type Profile struct {
+	Id       int    `json:"id"`
 	Username string `json:"username"`
 	Password string `json:"password"`
 	Email    string `json:"email"`

@@ -1,7 +1,7 @@
 package photo
 
 type Photo struct {
-	Id     string `json:"id"`
-	File   string `form:"file"`
-	UserId int    `json:"userId"`
+	Id        string `json:"id"`
+	File      string `json:"file"`
+	ProfileId int    `json:"profileId"`
 }
