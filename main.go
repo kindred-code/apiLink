@@ -16,18 +16,18 @@ import (
 
 func main() {
 	router := gin.Default()
-	router.GET("/user", GetUser)
-	router.POST("/user", PostUser)
+	router.GET("/profile", GetProfile)
+	router.POST("/profile", PostProfile)
 	router.POST("/photo", PostPhoto)
 	router.Run("localhost:8080")
 }
 
-// GetUser returns all users from the database in json format.
-func GetUser(c *gin.Context) {
+// GetProfile returns all users from the database in json format.
+func GetProfile(c *gin.Context) {
 
 	conn := db.Connections()
 	var users = []us.Profile{}
-	rows, err := conn.Query("Select * from users;")
+	rows, err := conn.Query("Select * from profile;")
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
@@ -49,8 +49,8 @@ func GetUser(c *gin.Context) {
 
 }
 
-// PostUser adds a new user to the database, given the json body of the POST request.
-func PostUser(c *gin.Context) {
+// PostProfile adds a new user to the database, given the json body of the POST request.
+func PostProfile(c *gin.Context) {
 
 	var u = new(us.Profile)
 	if err := c.BindJSON(&u); err != nil {
