@@ -148,3 +148,20 @@ func PostPhoto(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(photo)
 }
+
+func GetPhoto(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	profileId := params["profileId"]
+	var photos ph.Photo
+	conn := db.Connections()
+
+	// Save the details to the database or perform any necessary operations with the data
+	err := conn.QueryRowContext(context.Background(), (fmt.Sprintf("Select * from photo where profile.id = %s;", profileId))).Scan(&photos.File, &photos.ProfileId)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "No photos: %v\n", err)
+		os.Exit(1)
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(photos)
+}
