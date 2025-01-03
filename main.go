@@ -1,15 +1,17 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	routing "mpolitakis.LinkApi/Routing"
 )
 
 func main() {
-	router := mux.NewRouter()
+	router := gin.Default()
 	routing.Routing(router)
-	http.ListenAndServe(":8080", router)
+	fmt.Println("Starting server")
+	http.ListenAndServe("127.0.0.1:8080", nil)
 }

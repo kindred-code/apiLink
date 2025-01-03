@@ -12,17 +12,17 @@ import (
 
 	"os"
 
+	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 
-	"github.com/gorilla/mux"
 	db "mpolitakis.LinkApi/Connections"
 	ph "mpolitakis.LinkApi/Data/Photo"
 	us "mpolitakis.LinkApi/Data/Profile"
 )
 
-func GetDetails(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	profileId := params["profileId"]
+func GetDetails(c *gin.Context) {
+	profileId := c.Params.ByName("profileId")
+
 	var details details.Details // Assuming you have a struct called details.Details
 	conn := db.Connections()
 
@@ -33,12 +33,11 @@ func GetDetails(w http.ResponseWriter, r *http.Request) {
 		os.Exit(1)
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(details)
+	c.Writer.WriteHeader(http.StatusCreated)
+	json.NewEncoder(c.Writer).Encode(details)
 }
-func GetProfileById(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	profileId := params["profileId"]
+func GetProfileById(c gin.Context) {
+	profileId := c.Params.ByName("profileId")
 	conn := db.Connections()
 	var user us.Profile
 	err := conn.QueryRow(fmt.Sprintf("Select * from profile where profile.id = %s;", profileId)).Scan(&user.Id, &user.Email, &user.Username, &user.Password)
@@ -48,13 +47,13 @@ func GetProfileById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	defer conn.Close()
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(user)
+	c.Writer.WriteHeader(http.StatusFound)
+	json.NewEncoder(c.Writer).Encode(user)
 
 }
 
 // GetProfile returns all users from the database in json format.
-func GetAllProfiles(w http.ResponseWriter, r *http.Request) {
+func GetAllProfiles(c gin.Context) {
 
 	conn := db.Connections()
 	var users = []us.Profile{}
@@ -76,15 +75,15 @@ func GetAllProfiles(w http.ResponseWriter, r *http.Request) {
 	}
 
 	defer conn.Close()
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(users)
+	c.Writer.WriteHeader(http.StatusFound)
+	json.NewEncoder(c.Writer).Encode(users)
 }
 
 // PostProfile adds a new user to the database, given the json body of the POST request.
-func PostProfile(w http.ResponseWriter, r *http.Request) {
+func PostProfile(c gin.Context) {
 
 	var u = new(us.Profile)
-	if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
+	if err := json.NewDecoder(c.Request.Body).Decode(&u); err != nil {
 		fmt.Fprintf(os.Stderr, "Wrong data format: %v\n", err)
 		os.Exit(1)
 	}
@@ -98,21 +97,19 @@ func PostProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	defer conn.Close()
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(u)
+	c.Writer.WriteHeader(http.StatusCreated)
+	json.NewEncoder(c.Writer).Encode(u)
 }
 
-func PostDetails(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	s := params["profileId"]
-	profileId, err := strconv.Atoi(s)
+func PostDetails(c gin.Context) {
+	profileId, err := strconv.Atoi(c.Params.ByName("profileId"))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Wrong data format: %v\n", err)
 		os.Exit(1)
 	}
 
 	var u = new(details.Details)
-	if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
+	if err := json.NewDecoder(c.Request.Body).Decode(&u); err != nil {
 		fmt.Fprintf(os.Stderr, "Wrong data format: %v\n", err)
 		os.Exit(1)
 	}
@@ -126,15 +123,15 @@ func PostDetails(w http.ResponseWriter, r *http.Request) {
 	}
 
 	defer conn.Close()
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(u)
+	c.Writer.WriteHeader(http.StatusCreated)
+	json.NewEncoder(c.Writer).Encode(u)
 }
 
 // PostPhoto adds a new photo to the database, given the json body of the POST request.
-func PostPhoto(w http.ResponseWriter, r *http.Request) {
+func PostPhoto(c gin.Context) {
 
 	var photo = new(ph.Photo)
-	if err := json.NewDecoder(r.Body).Decode(&photo); err != nil {
+	if err := json.NewDecoder(c.Request.Body).Decode(&photo); err != nil {
 		fmt.Fprintf(os.Stderr, "Wrong data format: %v\n", err)
 		os.Exit(1)
 	}
@@ -145,13 +142,12 @@ func PostPhoto(w http.ResponseWriter, r *http.Request) {
 		os.Exit(1)
 	}
 	defer conn.Close()
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(photo)
+	c.Writer.WriteHeader(http.StatusCreated)
+	json.NewEncoder(c.Writer).Encode(photo)
 }
 
-func GetPhoto(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	profileId := params["profileId"]
+func GetPhoto(c gin.Context) {
+	profileId := c.Params.ByName("profileId")
 	var photos ph.Photo
 	conn := db.Connections()
 
@@ -162,6 +158,6 @@ func GetPhoto(w http.ResponseWriter, r *http.Request) {
 		os.Exit(1)
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(photos)
+	c.Writer.WriteHeader(http.StatusFound)
+	json.NewEncoder(c.Writer).Encode(photos)
 }

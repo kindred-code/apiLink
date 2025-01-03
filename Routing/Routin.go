@@ -1,18 +1,17 @@
 package routing
 
 import (
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 	end "mpolitakis.LinkApi/Endpoints"
 )
 
-func Routing(router *mux.Router) {
+func Routing(router gin.Context) {
 
-	router.HandleFunc("/details/{profileId}", end.GetDetails).Methods("GET")
-	router.HandleFunc("/details/{profileId}", end.PostDetails).Methods("POST")
-	router.HandleFunc("/profile/{profileId}", end.GetProfileById).Methods("GET")
-	router.HandleFunc("/profile", end.GetAllProfiles).Methods("GET")
-	router.HandleFunc("/profile", end.PostProfile).Methods("POST")
-	router.HandleFunc("/photo/", end.PostPhoto).Methods("POST")
-	router.HandleFunc("/photo/{profileId}", end.GetPhoto).Methods("GET")
+	router.GET("/details/{profileId}", end.GetDetails)
+	router.POST("/details/{profileId}", end.PostDetails)
+	router.GET("/profile/{profileId}", end.GetProfileById)
+	router.GET("/profile", end.GetAllProfiles)
+	router.POST("/photo/", end.PostPhoto)
+	router.GET("/photo/{profileId}", end.GetPhoto)
 
 }
