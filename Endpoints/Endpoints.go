@@ -3,6 +3,7 @@ package endpoints
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"context"
 	"fmt"
@@ -19,29 +20,17 @@ import (
 	us "mpolitakis.LinkApi/Data/Profile"
 )
 
-func PostDetails(w http.ResponseWriter, r *http.Request) {
+func GetDetails(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	profileId := params["profileId"]
-	var details = new(details.Details) // Assuming you have a struct called details.Details
+	var details details.Details // Assuming you have a struct called details.Details
 	conn := db.Connections()
-	err := json.NewDecoder(r.Body).Decode(&details)
-	if err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
-		return
-	}
 
 	// Save the details to the database or perform any necessary operations with the data
-	rows, err := conn.Query(fmt.Sprintf("Select * from details where Id = %s;", profileId))
+	err := conn.QueryRowContext(context.Background(), (fmt.Sprintf("Select * from details where profile.id = %s;", profileId))).Scan(&details.ProfileId, &details.Gender, &details.Bio, &details.Location, &details.LastActiveTime)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "No user: %v\n", err)
 		os.Exit(1)
-	}
-	err = rows.Scan(profileId, &details.Gender, &details.Bio, &details.Interests, &details.Location, &details.LastActiveTime)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Scan failed: %v\n", err)
-		os.Exit(1)
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(details)
 	}
 
 	w.WriteHeader(http.StatusCreated)
@@ -51,18 +40,10 @@ func GetProfileById(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	profileId := params["profileId"]
 	conn := db.Connections()
-
-	rows, err := conn.Query(fmt.Sprintf("Select * from profile where Id = %s;", profileId))
-
+	var user us.Profile
+	err := conn.QueryRow(fmt.Sprintf("Select * from profile where profile.id = %s;", profileId)).Scan(&user.Id, &user.Email, &user.Username, &user.Password)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
-		os.Exit(1)
-	}
-
-	var user us.Profile
-	err = rows.Scan(&user.Id, &user.Email, &user.Username, &user.Password)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Scan failed: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -121,8 +102,37 @@ func PostProfile(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(u)
 }
 
+func PostDetails(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	s := params["profileId"]
+	profileId, err := strconv.Atoi(s)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Wrong data format: %v\n", err)
+		os.Exit(1)
+	}
+
+	var u = new(details.Details)
+	if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
+		fmt.Fprintf(os.Stderr, "Wrong data format: %v\n", err)
+		os.Exit(1)
+	}
+
+	conn := db.Connections()
+
+	_, err = conn.ExecContext(context.Background(), db.BuildSqlDetails(u, profileId))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Wrong data format: %v\n", err)
+		os.Exit(1)
+	}
+
+	defer conn.Close()
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(u)
+}
+
 // PostPhoto adds a new photo to the database, given the json body of the POST request.
 func PostPhoto(w http.ResponseWriter, r *http.Request) {
+
 	var photo = new(ph.Photo)
 	if err := json.NewDecoder(r.Body).Decode(&photo); err != nil {
 		fmt.Fprintf(os.Stderr, "Wrong data format: %v\n", err)

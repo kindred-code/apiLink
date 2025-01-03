@@ -6,6 +6,7 @@ import (
 	"os"
 
 	con "mpolitakis.LinkApi/Consts"
+	details "mpolitakis.LinkApi/Data/Details"
 	ph "mpolitakis.LinkApi/Data/Photo"
 	profile "mpolitakis.LinkApi/Data/Profile"
 )
@@ -34,7 +35,9 @@ func BuildSql(u *profile.Profile) string {
 	u.Password = shaHashing(u.Password)
 	return fmt.Sprintf("insert into profile (username, password, email)values  ('%s', '%s', '%s')", u.Username, u.Password, u.Email)
 }
-
+func BuildSqlDetails(u *details.Details, profileId int) string {
+	return fmt.Sprintf("insert into details (profileId, gender, bio, location)values  ('%d', '%s', '%s', '%s')", profileId, u.Gender, u.Bio, u.Location)
+}
 func BuildSqlPhoto(p *ph.Photo) string {
 	return fmt.Sprintf("insert into photo (file, profileId)values  ('%s', '%d')", p.File, p.ProfileId)
 }

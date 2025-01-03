@@ -10,10 +10,11 @@ import (
 
 func main() {
 	router := mux.NewRouter()
+	router.HandleFunc("/details/{profileId}", end.GetDetails).Methods("GET")
+	router.HandleFunc("/details/{profileId}", end.PostDetails).Methods("POST")
+	router.HandleFunc("/profile/{profileId}", end.GetProfileById).Methods("GET")
 	router.HandleFunc("/profile", end.GetAllProfiles).Methods("GET")
-	router.HandleFunc("/profile/{id}", end.GetProfileById).Methods("GET")
 	router.HandleFunc("/profile", end.PostProfile).Methods("POST")
-	router.HandleFunc("/photo", end.PostPhoto).Methods("POST")
-	router.HandleFunc("/details/{id}", end.PostDetails).Methods("POST")
+	router.HandleFunc("/photo/", end.PostPhoto).Methods("POST")
 	http.ListenAndServe(":8080", router)
 }
