@@ -5,13 +5,28 @@ import (
 	end "mpolitakis.LinkApi/Endpoints"
 )
 
-func Routing(router gin.Context) {
+func Routing(router *gin.Engine) {
 
-	router.GET("/details/{profileId}", end.GetDetails)
-	router.POST("/details/{profileId}", end.PostDetails)
-	router.GET("/profile/{profileId}", end.GetProfileById)
-	router.GET("/profile", end.GetAllProfiles)
-	router.POST("/photo/", end.PostPhoto)
-	router.GET("/photo/{profileId}", end.GetPhoto)
+	router.GET("/details/:profileId", func(ctx *gin.Context) {
+		end.GetDetails(ctx)
+	})
+	router.POST("/details/:profileId", func(ctx *gin.Context) {
+		end.PostDetails(ctx)
+	})
+	router.GET("/profile/:profileId", func(ctx *gin.Context) {
+		end.GetProfileById(ctx)
+	})
+	router.POST("/profile", func(ctx *gin.Context) {
+		end.PostProfile(ctx)
+	})
+	router.GET("/profile", func(ctx *gin.Context) {
+		end.GetAllProfiles(ctx)
+	})
+	router.POST("/photoPost/", func(ctx *gin.Context) {
+		end.PostPhoto(ctx)
+	})
+	router.GET("/photo/:profileId", func(ctx *gin.Context) {
+		end.GetPhoto(ctx)
+	})
 
 }
